@@ -1,0 +1,83 @@
+/* =========================
+   DOMG6027 Base Styles
+   ========================= */
+
+body {
+  margin: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background-color: #ffffff;
+}
+
+/* Main Layout */
+
+main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* Headings */
+
+h1 {
+  text-align: center;
+  color: #b00000;
+  margin-bottom: 1rem;
+}
+
+h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+/* Introduction */
+
+#introduction {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.intro-lead {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/* Call to Action */
+
+.cta {
+  margin-top: 2rem;
+}
+
+.cta-button {
+  display: inline-block;
+  background-color: royalblue;
+  color: #ffffff;
+  padding: 0.75rem 1.5rem;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1.1rem;
+}
+
+.cta-button:hover {
+  background-color: #2b4fa3;
+}
+
+/* Testimonials */
+
+#testimonials {
+  margin-top: 3rem;
+}
+
+.testimonial {
+  margin-bottom: 1.5rem;
+  text-align: center;
+}
+
+.testimonial .name {
+  font-weight: bold;
+}
+
+.testimonial .quote {
+  font-style: italic;
+}
