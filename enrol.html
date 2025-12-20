@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>DOTS 6027 – Enrol</title>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <!-- Local styles -->
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Layout includes ONLY -->
+  <script src="include.js" defer></script>
+
+  <!-- Enrollment logic ONLY -->
+  <script src="enrol.js" defer></script>
+</head>
+
+<body>
+
+  <!-- Dynamic Header -->
+  <div id="header-placeholder"></div>
+
+  <!-- Dynamic Navigation -->
+  <div id="nav-placeholder"></div>
+
+  <main class="container">
+
+    <h2>Enrol in Derech Olam Training Services (DOTS 6027)</h2>
+
+    <p>Please complete the form below. After submission, you will receive a confirmation email.</p>
+
+    <!-- ENROLMENT FORM -->
+    <form id="enrol-form">
+      <label>
+        First Name<br>
+        <input type="text" name="first_name" required>
+      </label>
+
+      <br><br>
+
+      <label>
+        Last Name<br>
+        <input type="text" name="last_name" required>
+      </label>
+
+      <br><br>
+
+      <label>
+        Email Address<br>
+        <input type="email" name="email" required>
+      </label>
+
+      <br><br>
+
+      <label>
+        Country<br>
+        <input type="text" name="country">
+      </label>
+
+      <br><br>
+
+      <button type="submit">
+        Enrol Now
+      </button>
+    </form>
+
+    <!-- SUCCESS MESSAGE (hidden by default) -->
+    <div id="enrol-success" style="display:none;">
+      <p>Thank you. Please check your email to confirm your enrollment.</p>
+    </div>
+
+    <!-- ERROR MESSAGE -->
+    <div id="enrol-error" style="display:none; color:red;">
+      <p>Enrollment failed. Please try again later.</p>
+    </div>
+  </main>
+
+  <!-- Dynamic Footer -->
+  <div id="footer-placeholder"></div>
+
+</body>
+</html>
