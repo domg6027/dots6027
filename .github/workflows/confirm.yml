@@ -1,54 +1,37 @@
-name: DOTS Email Confirmation
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Email Confirmation</title>
+  <script defer>
+    async function confirmEnrollment() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
 
-on:
-  workflow_dispatch:
-    inputs:
-      token:
-        description: "Email confirmation token"
-        required: true
+      if (!token) {
+        document.body.textContent = "Invalid confirmation link.";
+        return;
+      }
 
-jobs:
-  confirm:
-    runs-on: ubuntu-latest
+      await fetch("https://api.github.com/repos/domg6027/dots6027/actions/workflows/confirm.yml/dispatches", {
+        method: "POST",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": "Bearer ${{ secrets.ACTION_TRIGGER_TOKEN }}"
+        },
+        body: JSON.stringify({
+          ref: "main",
+          inputs: { token }
+        })
+      });
 
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      document.body.textContent = "Your email has been confirmed. Welcome.";
+    }
 
-      - name: Confirm enrollment
-        run: |
-          node <<'EOF'
-          const fs = require('fs');
-
-          const token = process.env.TOKEN;
-          const data = JSON.parse(fs.readFileSync('students.json', 'utf8'));
-
-          let updated = false;
-
-          for (const student of data.students) {
-            if (student.confirmation_token === token) {
-              student.status = "active";
-              student.email_verified = true;
-              delete student.confirmation_token;
-              updated = true;
-              break;
-            }
-          }
-
-          if (!updated) {
-            console.error("Invalid or expired token");
-            process.exit(1);
-          }
-
-          fs.writeFileSync('students.json', JSON.stringify(data, null, 2));
-          EOF
-        env:
-          TOKEN: ${{ github.event.inputs.token }}
-
-      - name: Commit confirmation
-        run: |
-          git config user.name "DOTS Confirmation Bot"
-          git config user.email "bot@users.noreply.github.com"
-          git add students.json
-          git commit -m "Enrollment email confirmed"
-          git push
+    confirmEnrollment();
+  </script>
+</head>
+<body>
+Confirming your enrollment…
+</body>
+</html>
