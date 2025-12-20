@@ -56,3 +56,38 @@ jobs:
           git add students.json
           git commit -m "New enrollment (pending email confirmation)"
           git push
+
+      - name: Send confirmation email
+        run: |
+          node <<'EOF'
+          const nodemailer = require("nodemailer");
+          const fs = require("fs");
+
+          const data = JSON.parse(fs.readFileSync("students.json", "utf8"));
+          const student = data.students[data.students.length - 1];
+
+          const transporter = nodemailer.createTransport({
+            host: process.env.SMTP_HOST,
+            port: process.env.SMTP_PORT,
+            secure: true,
+            auth: {
+              user: process.env.SMTP_USER,
+              pass: process.env.SMTP_PASS
+            }
+          });
+
+          const link = `https://saphahcentral.github.io/domg6027/confirm.html?token=${student.confirmation_token}`;
+
+          transporter.sendMail({
+            from: process.env.MAIL_FROM,
+            to: student.email,
+            subject: "Confirm your enrollment – Derech Olam Training Services",
+            text: `Please confirm your enrollment by clicking the link below:\n\n${link}\n\nIf you did not request this, ignore this email.`
+          });
+          EOF
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_FROM: ${{ secrets.MAIL_FROM }}
