@@ -24,13 +24,15 @@ jobs:
             exit 1
           fi
 
-      - name: Append student to students.json
+      - name: Append student to students.json (with confirmation token)
         run: |
           TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
           ID=$(uuidgen)
+          TOKEN=$(openssl rand -hex 16)
 
           jq --arg id "$ID" \
              --arg ts "$TIMESTAMP" \
+             --arg token "$TOKEN" \
              --slurpfile payload payload.json \
              '. + [{
                 id: $id,
@@ -39,6 +41,7 @@ jobs:
                 email: $payload[0].email,
                 country: $payload[0].country,
                 status: "pending",
+                confirm_token: $token,
                 enrolled_at: $ts
               }]' \
              students.json > students.tmp
@@ -50,7 +53,7 @@ jobs:
           git config user.name "DOTS Enrollment Bot"
           git config user.email "derech-olam-6027@outlook.com"
           git add students.json
-          git commit -m "New enrollment (pending)"
+          git commit -m "New enrollment (pending confirmation)"
           git push
 
       - name: Send confirmation email
@@ -65,5 +68,17 @@ jobs:
           from: ${{ secrets.MAIL_FROM }}
           html_body: |
             <p>Thank you for enrolling in <strong>Derech Olam Training Services (6027)</strong>.</p>
-            <p>Your enrollment status is currently <strong>pending</strong>.</p>
-            <p>You will receive a confirmation link shortly.</p>
+
+            <p>Your enrollment is almost complete.</p>
+
+            <p>
+              Please confirm your email address by clicking the link below:
+            </p>
+
+            <p>
+              <a href="https://domg6027.github.io/dots6027/confirm.html?token=${TOKEN}">
+                Confirm my enrollment
+              </a>
+            </p>
+
+            <p>If you did not request this enrollment, you may safely ignore this email.</p>
