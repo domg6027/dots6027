@@ -179,3 +179,33 @@ h2 {
 #footer-copyright {
   margin-top: 1rem;
 }
+
+/* =========================
+   About Page
+   ========================= */
+
+#about-introduction {
+  text-align: center;
+  margin-bottom: 2.5rem;
+}
+
+.about-logo {
+  display: block;
+  margin: 0 auto 1rem;
+}
+
+#about-introduction h2 {
+  margin-bottom: 1rem;
+}
+
+#about-content {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+#about-content p {
+  font-size: 1rem;
+  line-height: 1.6;
+  margin-bottom: 1.25rem;
+  color: #444;
+}
