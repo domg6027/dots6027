@@ -20,7 +20,7 @@ jobs:
         run: |
           EMAIL=$(jq -r '.email' payload.json)
           if [ -z "$EMAIL" ] || [ "$EMAIL" = "null" ]; then
-            echo "Email missing"
+            echo "❌ Email missing"
             exit 1
           fi
 
@@ -31,16 +31,16 @@ jobs:
 
           jq --arg id "$ID" \
              --arg ts "$TIMESTAMP" \
+             --slurpfile payload payload.json \
              '. + [{
                 id: $id,
-                first_name: .first_name,
-                last_name: .last_name,
-                email: .email,
-                country: .country,
+                first_name: $payload[0].first_name,
+                last_name: $payload[0].last_name,
+                email: $payload[0].email,
+                country: $payload[0].country,
                 status: "pending",
                 enrolled_at: $ts
               }]' \
-             --slurpfile payload payload.json \
              students.json > students.tmp
 
           mv students.tmp students.json
@@ -64,5 +64,6 @@ jobs:
           to: ${{ fromJson(github.event.client_payload).email }}
           from: ${{ secrets.MAIL_FROM }}
           html_body: |
-            <p>Thank you for enrolling in DOTS 6027.</p>
-            <p>Please confirm your email by following the instructions provided.</p>
+            <p>Thank you for enrolling in <strong>Derech Olam Training Services (6027)</strong>.</p>
+            <p>Your enrollment status is currently <strong>pending</strong>.</p>
+            <p>You will receive a confirmation link shortly.</p>
