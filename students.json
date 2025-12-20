@@ -1,0 +1,22 @@
+{
+  "meta": {
+    "file": "students.json",
+    "project": "DOTS6027",
+    "version": 1,
+    "created": "2025-01-01",
+    "notes": "Append-only student enrollment ledger"
+  },
+  "students": [
+    {
+      "id": "DOTS-2025-0001",
+      "timestamp": "2025-12-20T06:20:00Z",
+      "first_name": "Magdalena",
+      "last_name": "Grobbelaar",
+      "email": "lastwarners2024@gmail.com",
+      "country": "ZA",
+      "status": "active",
+      "email_verified": true,
+      "source": "manual_seed"
+    }
+  ]
+}
