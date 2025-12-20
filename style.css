@@ -136,3 +136,46 @@ h2 {
   margin: 0;
 }
 
+/* =========================
+   Footer
+   ========================= */
+
+#site-footer {
+  border-top: 2px solid #ccc;
+  margin-top: 3rem;
+  padding: 1.5rem 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #555;
+}
+
+/* Hashtag */
+
+#footer-hashtag span {
+  font-weight: bold;
+}
+
+/* Footer Navigation */
+
+#footer-links {
+  margin: 1.5rem 0;
+  font-family: monospace;
+}
+
+#footer-links a {
+  color: blue;
+  background-color: wheat;
+  padding: 0.25rem 0.5rem;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+#footer-links .separator {
+  margin: 0 0.5rem;
+}
+
+/* Copyright */
+
+#footer-copyright {
+  margin-top: 1rem;
+}
