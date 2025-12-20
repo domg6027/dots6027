@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Email Confirmation</title>
+  <script defer>
+    async function confirmEnrollment() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get("token");
+
+      if (!token) {
+        document.body.textContent = "Invalid confirmation link.";
+        return;
+      }
+
+      await fetch("https://api.github.com/repos/YOUR_ORG/YOUR_REPO/actions/workflows/confirm.yml/dispatches", {
+        method: "POST",
+        headers: {
+          "Accept": "application/vnd.github+json",
+          "Authorization": "Bearer YOUR_PUBLIC_TRIGGER_TOKEN"
+        },
+        body: JSON.stringify({
+          ref: "main",
+          inputs: { token }
+        })
+      });
+
+      document.body.textContent = "Thank you. Your email has been confirmed.";
+    }
+
+    confirmEnrollment();
+  </script>
+</head>
+<body>
+Confirming your enrollment…
+</body>
+</html>
