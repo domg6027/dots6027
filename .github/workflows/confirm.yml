@@ -1,37 +1,49 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Email Confirmation</title>
-  <script defer>
-    async function confirmEnrollment() {
-      const params = new URLSearchParams(window.location.search);
-      const token = params.get("token");
+name: DOTS Email Confirmation
 
-      if (!token) {
-        document.body.textContent = "Invalid confirmation link.";
-        return;
-      }
+on:
+  workflow_dispatch:
+    inputs:
+      token:
+        required: true
+        type: string
 
-      await fetch("https://api.github.com/repos/domg6027/dots6027/actions/workflows/confirm.yml/dispatches", {
-        method: "POST",
-        headers: {
-          "Accept": "application/vnd.github+json",
-          "Authorization": "Bearer ${{ secrets.ACTION_TRIGGER_TOKEN }}"
-        },
-        body: JSON.stringify({
-          ref: "main",
-          inputs: { token }
-        })
-      });
+jobs:
+  confirm:
+    runs-on: ubuntu-latest
 
-      document.body.textContent = "Your email has been confirmed. Welcome.";
-    }
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    confirmEnrollment();
-  </script>
-</head>
-<body>
-Confirming your enrollment…
-</body>
-</html>
+      - name: Confirm student by token
+        run: |
+          TOKEN="${{ github.event.inputs.token }}"
+
+          MATCH=$(jq --arg token "$TOKEN" '
+            map(select(.confirm_token == $token)) | length
+          ' students.json)
+
+          if [ "$MATCH" -eq 0 ]; then
+            echo "❌ Invalid or already confirmed token"
+            exit 1
+          fi
+
+          jq --arg token "$TOKEN" '
+            map(
+              if .confirm_token == $token then
+                .status = "confirmed"
+                | del(.confirm_token)
+              else .
+              end
+            )
+          ' students.json > students.tmp
+
+          mv students.tmp students.json
+
+      - name: Commit confirmation update
+        run: |
+          git config user.name "DOTS Confirmation Bot"
+          git config user.email "derech-olam-6027@outlook.com"
+          git add students.json
+          git commit -m "Enrollment confirmed"
+          git push
