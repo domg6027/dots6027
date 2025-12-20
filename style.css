@@ -209,3 +209,46 @@ h2 {
   margin-bottom: 1.25rem;
   color: #444;
 }
+
+/* =========================
+   Contact Page
+   ========================= */
+
+#contact-introduction {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+#contact-details {
+  max-width: 700px;
+  margin: 0 auto 2.5rem;
+}
+
+.contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.contact-list li {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+}
+
+.contact-list a {
+  color: #2b00fe;
+  text-decoration: underline;
+}
+
+#no-spam-policy {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.25rem;
+  border: 1px solid #503a27;
+  background-color: #f8f4ec;
+  border-radius: 5px;
+}
+
+#no-spam-policy h3 {
+  margin-top: 0;
+}
