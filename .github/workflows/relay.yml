@@ -13,6 +13,7 @@ jobs:
         if: github.event.action == 'dots-enroll'
         uses: peter-evans/workflow-dispatch@v1
         with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           workflow: enrol.yml
           ref: main
           inputs:
@@ -22,6 +23,7 @@ jobs:
         if: github.event.action == 'dots-confirm'
         uses: peter-evans/workflow-dispatch@v1
         with:
+          token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           workflow: confirm.yml
           ref: main
           inputs:
