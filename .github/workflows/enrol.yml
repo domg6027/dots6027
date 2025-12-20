@@ -1,11 +1,8 @@
-name: DOTS Enrollment Processor
+name: DOTS Enrollment
 
 on:
-  workflow_dispatch:
-    inputs:
-      payload:
-        description: "Enrollment JSON payload"
-        required: true
+  repository_dispatch:
+    types: [dots-enroll]
 
 jobs:
   enroll:
@@ -15,79 +12,57 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Parse enrollment payload
-        id: parse
+      - name: Save enrollment payload
         run: |
-          echo '${{ github.event.inputs.payload }}' > payload.json
+          echo '${{ toJson(github.event.client_payload) }}' > payload.json
 
-      - name: Append student record
+      - name: Validate payload
         run: |
-          node <<'EOF'
-          const fs = require('fs');
-          const crypto = require('crypto');
+          EMAIL=$(jq -r '.email' payload.json)
+          if [ -z "$EMAIL" ] || [ "$EMAIL" = "null" ]; then
+            echo "Email missing"
+            exit 1
+          fi
 
-          const payload = JSON.parse(fs.readFileSync('payload.json', 'utf8'));
-          const data = JSON.parse(fs.readFileSync('students.json', 'utf8'));
+      - name: Append student to students.json
+        run: |
+          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+          ID=$(uuidgen)
 
-          const id = `DOTS-${new Date().getFullYear()}-${String(data.students.length + 1).padStart(4, '0')}`;
-          const token = crypto.randomBytes(16).toString('hex');
+          jq --arg id "$ID" \
+             --arg ts "$TIMESTAMP" \
+             '. + [{
+                id: $id,
+                first_name: .first_name,
+                last_name: .last_name,
+                email: .email,
+                country: .country,
+                status: "pending",
+                enrolled_at: $ts
+              }]' \
+             --slurpfile payload payload.json \
+             students.json > students.tmp
 
-          const entry = {
-            id,
-            timestamp: new Date().toISOString(),
-            first_name: payload.first_name,
-            last_name: payload.last_name,
-            email: payload.email,
-            country: payload.country,
-            status: "pending_email",
-            email_verified: false,
-            confirmation_token: token,
-            source: "enrol.html"
-          };
+          mv students.tmp students.json
 
-          data.students.push(entry);
-          fs.writeFileSync('students.json', JSON.stringify(data, null, 2));
-          EOF
-
-      - name: Commit enrollment
+      - name: Commit updated students.json
         run: |
           git config user.name "DOTS Enrollment Bot"
-          git config user.email "bot@users.noreply.github.com"
+          git config user.email "derech-olam-6027@outlook.com"
           git add students.json
-          git commit -m "New enrollment (pending email confirmation)"
+          git commit -m "New enrollment (pending)"
           git push
 
       - name: Send confirmation email
-        run: |
-          node <<'EOF'
-          const nodemailer = require("nodemailer");
-          const fs = require("fs");
-
-          const data = JSON.parse(fs.readFileSync("students.json", "utf8"));
-          const student = data.students[data.students.length - 1];
-
-          const transporter = nodemailer.createTransport({
-            host: process.env.SMTP_HOST,
-            port: process.env.SMTP_PORT,
-            secure: true,
-            auth: {
-              user: process.env.SMTP_USER,
-              pass: process.env.SMTP_PASS
-            }
-          });
-
-          const link = `https://saphahcentral.github.io/domg6027/confirm.html?token=${student.confirmation_token}`;
-
-          transporter.sendMail({
-            from: process.env.MAIL_FROM,
-            to: student.email,
-            subject: "Confirm your enrollment – Derech Olam Training Services",
-            text: `Please confirm your enrollment by clicking the link below:\n\n${link}\n\nIf you did not request this, ignore this email.`
-          });
-          EOF
-        env:
-          SMTP_HOST: ${{ secrets.SMTP_HOST }}
-          SMTP_PORT: ${{ secrets.SMTP_PORT }}
-          SMTP_USER: ${{ secrets.SMTP_USER }}
-          SMTP_PASS: ${{ secrets.SMTP_PASS }}
-          MAIL_FROM: ${{ secrets.MAIL_FROM }}
+        uses: dawidd6/action-send-mail@v3
+        with:
+          server_address: ${{ secrets.SMTP_HOST }}
+          server_port: ${{ secrets.SMTP_PORT }}
+          username: ${{ secrets.SMTP_USER }}
+          password: ${{ secrets.SMTP_PASS }}
+          subject: "Confirm your DOTS 6027 enrollment"
+          to: ${{ fromJson(github.event.client_payload).email }}
+          from: ${{ secrets.MAIL_FROM }}
+          html_body: |
+            <p>Thank you for enrolling in DOTS 6027.</p>
+            <p>Please confirm your email by following the instructions provided.</p>
