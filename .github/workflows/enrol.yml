@@ -1,0 +1,58 @@
+name: DOTS Enrollment Processor
+
+on:
+  workflow_dispatch:
+    inputs:
+      payload:
+        description: "Enrollment JSON payload"
+        required: true
+
+jobs:
+  enroll:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Parse enrollment payload
+        id: parse
+        run: |
+          echo '${{ github.event.inputs.payload }}' > payload.json
+
+      - name: Append student record
+        run: |
+          node <<'EOF'
+          const fs = require('fs');
+          const crypto = require('crypto');
+
+          const payload = JSON.parse(fs.readFileSync('payload.json', 'utf8'));
+          const data = JSON.parse(fs.readFileSync('students.json', 'utf8'));
+
+          const id = `DOTS-${new Date().getFullYear()}-${String(data.students.length + 1).padStart(4, '0')}`;
+          const token = crypto.randomBytes(16).toString('hex');
+
+          const entry = {
+            id,
+            timestamp: new Date().toISOString(),
+            first_name: payload.first_name,
+            last_name: payload.last_name,
+            email: payload.email,
+            country: payload.country,
+            status: "pending_email",
+            email_verified: false,
+            confirmation_token: token,
+            source: "enrol.html"
+          };
+
+          data.students.push(entry);
+          fs.writeFileSync('students.json', JSON.stringify(data, null, 2));
+          EOF
+
+      - name: Commit enrollment
+        run: |
+          git config user.name "DOTS Enrollment Bot"
+          git config user.email "bot@users.noreply.github.com"
+          git add students.json
+          git commit -m "New enrollment (pending email confirmation)"
+          git push
