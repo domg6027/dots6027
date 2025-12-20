@@ -1,0 +1,28 @@
+name: DOTS Relay Dispatcher
+
+on:
+  repository_dispatch:
+    types: [dots-enroll, dots-confirm]
+
+jobs:
+  relay:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Dispatch enrollment workflow
+        if: github.event.action == 'dots-enroll'
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: enrol.yml
+          ref: main
+          inputs:
+            payload: ${{ toJson(github.event.client_payload) }}
+
+      - name: Dispatch confirmation workflow
+        if: github.event.action == 'dots-confirm'
+        uses: peter-evans/workflow-dispatch@v1
+        with:
+          workflow: confirm.yml
+          ref: main
+          inputs:
+            token: ${{ github.event.client_payload.token }}
