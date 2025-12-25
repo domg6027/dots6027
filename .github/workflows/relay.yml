@@ -11,7 +11,7 @@ jobs:
     steps:
       - name: Dispatch enrollment workflow
         if: github.event.action == 'dots-enroll'
-        uses: peter-evans/workflow-dispatch@v1
+        uses: peter-evans/workflow-dispatch@v2
         with:
           token: ${{ secrets.REPO_DISPATCH_TOKEN }}
           workflow: enrol.yml
